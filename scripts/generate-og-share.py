@@ -11,8 +11,9 @@ ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "public" / "images" / "couple-bg.png"
 OUT = ROOT / "public" / "images" / "og-share.png"
 TARGET_W, TARGET_H = 1200, 630
+BG_COLOR = (250, 247, 242)
 TEXT_PAD_X = 48
-LINE_GAP = 10
+LINE_GAP = 8
 
 
 def load_font(size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
@@ -57,64 +58,69 @@ def wrap_text(
     return lines
 
 
-def crop_for_faces(img: Image.Image) -> Image.Image:
-    """Cover-crop portrait source from the top so faces stay in frame."""
-    src_w, src_h = img.size
-    scale = max(TARGET_W / src_w, TARGET_H / src_h)
-    new_w = int(src_w * scale)
-    new_h = int(src_h * scale)
-    scaled = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
-
-    left = (new_w - TARGET_W) // 2
-    top = max(0, int((new_h - TARGET_H) * 0.04))
-    return scaled.crop((left, top, left + TARGET_W, top + TARGET_H))
-
-
-def add_text_overlay(img: Image.Image) -> Image.Image:
-    base = img.convert("RGBA")
-    overlay = Image.new("RGBA", (TARGET_W, TARGET_H), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(overlay)
-
-    title_font = load_font(38)
-    body_font = load_font(24)
-    small_font = load_font(20)
+def measure_text_block(draw: ImageDraw.ImageDraw) -> tuple[list[tuple[str, ImageFont.ImageFont, int, tuple[int, int, int]]], int]:
+    title_font = load_font(34)
+    body_font = load_font(22)
+    small_font = load_font(19)
     max_text_width = TARGET_W - (TEXT_PAD_X * 2)
 
-    blocks: list[tuple[str, ImageFont.ImageFont]] = []
-    blocks.append(("Seating Plan", title_font))
+    blocks: list[tuple[str, ImageFont.ImageFont, tuple[int, int, int]]] = [
+        ("Seating Plan", title_font, (44, 36, 24)),
+    ]
     for line in wrap_text(
         draw,
         "Navigate here to find the seat you'll be sitting at",
         body_font,
         max_text_width,
     ):
-        blocks.append((line, body_font))
-    blocks.append(("Edmond & Claudia · 08 August 2026", small_font))
+        blocks.append((line, body_font, (107, 93, 74)))
+    blocks.append(("Edmond & Claudia · 08 August 2026", small_font, (138, 121, 98)))
 
-    total_text_h = 0
-    measured: list[tuple[str, ImageFont.ImageFont, int]] = []
-    for text, font in blocks:
+    measured: list[tuple[str, ImageFont.ImageFont, int, tuple[int, int, int]]] = []
+    total_h = 0
+    for text, font, color in blocks:
         _, height = text_size(draw, text, font)
-        measured.append((text, font, height))
-        total_text_h += height
-    total_text_h += LINE_GAP * (len(measured) - 1)
+        measured.append((text, font, height, color))
+        total_h += height
+    total_h += LINE_GAP * (len(measured) - 1)
+    return measured, total_h
 
-    bar_pad_y = 22
-    bar_h = total_text_h + (bar_pad_y * 2)
-    bar_top = TARGET_H - bar_h
 
-    for y in range(bar_h):
-        alpha = min(230, int(180 + (y / bar_h) * 50))
-        draw.line([(0, bar_top + y), (TARGET_W, bar_top + y)], fill=(28, 22, 16, alpha))
+def fit_entire_photo(img: Image.Image, photo_area_h: int) -> Image.Image:
+    """Scale the full portrait to fit inside the photo area without cropping."""
+    src_w, src_h = img.size
+    scale = min(TARGET_W / src_w, photo_area_h / src_h)
+    new_w = max(1, int(src_w * scale))
+    new_h = max(1, int(src_h * scale))
+    return img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+
+
+def build_share_image(photo: Image.Image) -> Image.Image:
+    canvas = Image.new("RGB", (TARGET_W, TARGET_H), BG_COLOR)
+    draw = ImageDraw.Draw(canvas)
+
+    measured, text_block_h = measure_text_block(draw)
+    bar_pad_y = 18
+    bar_h = text_block_h + (bar_pad_y * 2)
+    photo_area_h = TARGET_H - bar_h
+
+    fitted = fit_entire_photo(photo, photo_area_h)
+    photo_x = (TARGET_W - fitted.width) // 2
+    photo_y = (photo_area_h - fitted.height) // 2
+    canvas.paste(fitted, (photo_x, photo_y))
+
+    bar_top = photo_area_h
+    draw.rectangle([(0, bar_top), (TARGET_W, TARGET_H)], fill=(244, 239, 232))
+    draw.line([(0, bar_top), (TARGET_W, bar_top)], fill=(196, 180, 154), width=1)
 
     y = bar_top + bar_pad_y
-    for index, (text, font, height) in enumerate(measured):
-        draw.text((TARGET_W // 2, y), text, font=font, fill=(255, 252, 247, 255), anchor="ma")
+    for index, (text, font, height, color) in enumerate(measured):
+        draw.text((TARGET_W // 2, y), text, font=font, fill=color, anchor="ma")
         y += height
         if index < len(measured) - 1:
             y += LINE_GAP
 
-    return Image.alpha_composite(base, overlay).convert("RGB")
+    return canvas
 
 
 def main() -> None:
@@ -122,8 +128,7 @@ def main() -> None:
         raise SystemExit(f"Missing source image: {SRC}")
 
     photo = Image.open(SRC).convert("RGB")
-    framed = crop_for_faces(photo)
-    final = add_text_overlay(framed)
+    final = build_share_image(photo)
     final.save(OUT, format="PNG", optimize=True)
     print(f"Wrote {OUT} ({TARGET_W}x{TARGET_H})")
 
