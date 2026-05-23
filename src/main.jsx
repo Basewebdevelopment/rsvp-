@@ -28,7 +28,7 @@ class RootErrorBoundary extends Component {
           background: "#faf7f2",
         }}>
           <p style={{ letterSpacing: "0.3em", fontSize: 11, textTransform: "uppercase", color: "#8a7962" }}>
-            Wedding Reception
+            Seating Plan
           </p>
           <h1 style={{ fontSize: "2rem", fontWeight: 400, margin: "1rem 0", fontStyle: "italic" }}>
             Something went wrong

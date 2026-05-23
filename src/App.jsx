@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { fetchWeddingData, publishWedding } from "./lib/supabase.js";
 import { sharePreviewText } from "./config/env.js";
-import { ENV_DEFAULTS } from "../env.defaults.js";
+import { ENV_DEFAULTS, SITE_LABEL } from "../env.defaults.js";
 
 const FONTS = `
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@200;300;400&display=swap');
@@ -1240,7 +1240,7 @@ export default function App() {
         <div className="content">
           <header className="hero">
             <div className="ornament fade-up">
-              <div className="ornament-line"><Diamond /><span style={{ letterSpacing: "0.3em" }}>Wedding Reception</span><Diamond /></div>
+              <div className="ornament-line"><Diamond /><span style={{ letterSpacing: "0.3em" }}>{SITE_LABEL}</span><Diamond /></div>
             </div>
 
             <h1 className="couple-names fade-up">

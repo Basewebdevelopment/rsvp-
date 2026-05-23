@@ -1,4 +1,4 @@
-import { ENV_DEFAULTS, REQUIRED_AT_RUNTIME } from "../../env.defaults.js";
+import { ENV_DEFAULTS, REQUIRED_AT_RUNTIME, sharePreviewCopy } from "../../env.defaults.js";
 
 function readEnv(name, fallback = "") {
   const value = import.meta.env[name];
@@ -23,10 +23,8 @@ export function assertRuntimeEnv() {
 }
 
 export function sharePreviewText(coupleName = env.coupleNames, weddingDate = env.weddingDate) {
-  const names = coupleName || ENV_DEFAULTS.VITE_COUPLE_NAMES;
-  const date = weddingDate || ENV_DEFAULTS.VITE_WEDDING_DATE;
-  return {
-    title: `${names} · Wedding Reception`,
-    description: `You're invited to celebrate with us on ${date}. Find your seat at the reception.`,
-  };
+  return sharePreviewCopy(
+    coupleName || ENV_DEFAULTS.VITE_COUPLE_NAMES,
+    weddingDate || ENV_DEFAULTS.VITE_WEDDING_DATE
+  );
 }
