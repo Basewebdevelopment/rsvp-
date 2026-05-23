@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { fetchWeddingData, publishWedding } from "./lib/supabase.js";
+import { sharePreviewText } from "./config/env.js";
 
 const FONTS = `
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@200;300;400&display=swap');
@@ -895,6 +896,36 @@ function GuestView({ guests }) {
   );
 }
 
+function updateShareMeta(coupleName, weddingDate) {
+  const { title, description } = sharePreviewText(coupleName, weddingDate);
+  const imagePath = `${window.location.origin}/images/og-share.png`;
+
+  document.title = title;
+
+  const setMeta = (selector, content) => {
+    let tag = document.querySelector(selector);
+    if (!tag) {
+      tag = document.createElement("meta");
+      const isProperty = selector.startsWith('meta[property="');
+      if (isProperty) {
+        tag.setAttribute("property", selector.slice(14, -2));
+      } else {
+        tag.setAttribute("name", selector.slice(11, -2));
+      }
+      document.head.appendChild(tag);
+    }
+    tag.setAttribute("content", content);
+  };
+
+  setMeta('meta[name="description"]', description);
+  setMeta('meta[property="og:title"]', title);
+  setMeta('meta[property="og:description"]', description);
+  setMeta('meta[property="og:image"]', imagePath);
+  setMeta('meta[name="twitter:title"]', title);
+  setMeta('meta[name="twitter:description"]', description);
+  setMeta('meta[name="twitter:image"]', imagePath);
+}
+
 export default function App() {
   const [view, setView] = useState("guest");
   const [guests, setGuests] = useState([]);
@@ -912,8 +943,14 @@ export default function App() {
     let cancelled = false;
 
     async function load() {
+      const timeoutMs = 15000;
       try {
-        const data = await fetchWeddingData();
+        const data = await Promise.race([
+          fetchWeddingData(),
+          new Promise((_, reject) => {
+            setTimeout(() => reject(new Error("Request timed out. Please refresh the page.")), timeoutMs);
+          }),
+        ]);
         if (cancelled) return;
         setGuests(data.guests);
         setCoupleName(data.coupleName);
@@ -928,6 +965,10 @@ export default function App() {
     load();
     return () => { cancelled = true; };
   }, []);
+
+  useEffect(() => {
+    if (!loading) updateShareMeta(coupleName, weddingDate);
+  }, [loading, coupleName, weddingDate]);
 
   const handleSave = (g, name, date) => {
     setGuests(g);
@@ -946,7 +987,7 @@ export default function App() {
         <div className="page">
           <div className="content">
             <div className="hero">
-              <p className="card-sub" style={{ color: "rgba(255,252,247,0.8)", marginBottom: 0 }}>Loading…</p>
+              <p className="card-sub" style={{ marginBottom: 0 }}>Loading wedding details…</p>
             </div>
           </div>
         </div>
@@ -981,8 +1022,16 @@ export default function App() {
             {displayDate && <p className="date-line fade-up-2">{displayDate}</p>}
           </header>
 
-          {loadError && <p className="error-msg">{loadError}</p>}
+          {loadError && (
+            <div className="card fade-up-2" style={{ marginBottom: "1rem", textAlign: "center" }}>
+              <p className="error-msg" style={{ padding: "0.5rem 0 0" }}>{loadError}</p>
+              <button className="btn btn-secondary" style={{ marginTop: "1rem" }} onClick={() => window.location.reload()}>
+                Try Again
+              </button>
+            </div>
+          )}
 
+          {!loadError && (
           <div className="nav-wrap fade-up-3">
             <div className="nav-switch">
               <button className={`nav-item ${view === "guest" ? "active" : ""}`} onClick={() => setView("guest")}>Find My Seat</button>

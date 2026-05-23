@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run env:check && vite build",
     "preview": "vite preview",
-    "start": "serve -s dist -l ${PORT:-3000}"
+    "start": "serve -s dist -l ${PORT:-3000}",
+    "env:check": "node scripts/check-env.mjs",
+    "env:check:example": "node scripts/check-env.mjs --example"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.8",
