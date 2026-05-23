@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { fetchWeddingData, publishWedding } from "./lib/supabase.js";
 import { sharePreviewText } from "./config/env.js";
 import { ENV_DEFAULTS } from "../env.defaults.js";
@@ -218,6 +218,65 @@ body, #root {
 .field-input:focus {
   border-color: var(--gold);
   box-shadow: 0 0 0 3px rgba(168, 134, 74, 0.12);
+}
+
+.suggest-wrap {
+  position: relative;
+}
+
+.suggest-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--input-bg);
+  border: 0.5px solid var(--border-strong);
+  border-radius: 4px;
+  box-shadow: var(--shadow);
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: 20;
+  list-style: none;
+}
+
+.suggest-item {
+  width: 100%;
+  text-align: left;
+  padding: 0.85rem 1rem;
+  font-family: 'Jost', sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  border-bottom: 0.5px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.suggest-item:last-child {
+  border-bottom: none;
+}
+
+.suggest-item:hover,
+.suggest-item.active {
+  background: rgba(154, 115, 64, 0.1);
+}
+
+.suggest-item mark {
+  background: rgba(154, 115, 64, 0.22);
+  color: var(--heading);
+  font-weight: 400;
+  padding: 0 1px;
+  border-radius: 2px;
+}
+
+.suggest-hint {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-soft);
+  margin-top: 0.5rem;
+  text-align: left;
 }
 
 .btn {
@@ -613,16 +672,87 @@ function normalise(str) {
   return str.toLowerCase().replace(/\s+/g, " ").trim();
 }
 
-function findGuest(guests, query) {
-  const q = normalise(query);
-  let match = guests.find((g) => normalise(getGuestDisplay(g).name) === q);
-  if (match) return match;
+function nameParts(fullName) {
+  return normalise(fullName).split(" ").filter(Boolean);
+}
 
-  match = guests.find((g) => {
-    const fullName = normalise(getGuestDisplay(g).name);
-    return fullName.includes(q) || q.includes(fullName.split(" ")[0]);
+function nameInitials(fullName) {
+  return nameParts(fullName).map((part) => part[0] || "").join("");
+}
+
+function scoreGuestMatch(fullName, query) {
+  const name = normalise(fullName);
+  const q = normalise(query);
+  if (!q) return 0;
+  if (name === q) return 1000;
+  if (name.startsWith(q)) return 900;
+
+  const parts = nameParts(fullName);
+  const initials = nameInitials(fullName);
+
+  if (q.length >= 2 && initials.startsWith(q)) {
+    return 560 + q.length;
+  }
+
+  if (parts[0]?.startsWith(q)) {
+    return 500 + q.length;
+  }
+
+  const partIndex = parts.findIndex((part) => part.startsWith(q));
+  if (partIndex >= 0) {
+    return 420 - partIndex * 15 + q.length;
+  }
+
+  const queryTokens = q.split(" ").filter(Boolean);
+  if (queryTokens.length > 1) {
+    const everyTokenMatches = queryTokens.every((token) =>
+      parts.some((part) => part.startsWith(token))
+    );
+    if (everyTokenMatches) return 480;
+  }
+
+  return 0;
+}
+
+function searchGuests(guests, query, limit = 8) {
+  const q = normalise(query);
+  if (!q) return [];
+
+  return guests
+    .map((guest) => {
+      const display = getGuestDisplay(guest);
+      const score = scoreGuestMatch(display.name, q);
+      return score > 0 ? { guest, display, score } : null;
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.score - a.score || a.display.name.localeCompare(b.display.name))
+    .slice(0, limit);
+}
+
+function highlightName(name, query) {
+  const q = normalise(query);
+  if (!q) return name;
+
+  const parts = name.split(/\s+/);
+  const queryTokens = q.split(" ").filter(Boolean);
+  const matchToken = queryTokens[queryTokens.length - 1] || q;
+
+  const highlighted = parts.map((part) => {
+    if (part.toLowerCase().startsWith(matchToken)) {
+      return (
+        <>
+          <mark>{part.slice(0, matchToken.length)}</mark>
+          {part.slice(matchToken.length)}
+        </>
+      );
+    }
+    return part;
   });
-  return match || null;
+
+  return highlighted.reduce((acc, chunk, index) => {
+    if (index === 0) return [chunk];
+    return [...acc, " ", chunk];
+  }, []);
 }
 
 function getGuestDisplay(g) {
@@ -816,26 +946,109 @@ function GuestView({ guests, loading }) {
   const [name, setName] = useState("");
   const [result, setResult] = useState(null);
   const [status, setStatus] = useState("idle");
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const [listOpen, setListOpen] = useState(false);
   const inputRef = useRef(null);
+  const listRef = useRef(null);
+
+  const suggestions = useMemo(() => {
+    const q = name.trim();
+    if (q.length < 1) return [];
+    return searchGuests(guests, q, 8);
+  }, [guests, name]);
+
+  const showSuggestions = listOpen && status === "idle" && name.trim().length >= 1 && suggestions.length > 0;
+
+  const selectGuest = (guest) => {
+    const display = getGuestDisplay(guest);
+    setName(display.name);
+    setResult(display);
+    setStatus("found");
+    setListOpen(false);
+    setActiveIndex(-1);
+  };
 
   const handleSearch = () => {
     if (!name.trim() || loading) return;
-    const found = findGuest(guests, name);
-    if (found) {
-      setResult(getGuestDisplay(found));
-      setStatus("found");
-    } else {
+
+    const matches = searchGuests(guests, name, 8);
+    if (matches.length === 0) {
       setResult(null);
       setStatus("notfound");
+      setListOpen(false);
+      return;
     }
+
+    if (activeIndex >= 0 && matches[activeIndex]) {
+      selectGuest(matches[activeIndex].guest);
+      return;
+    }
+
+    if (matches.length === 1) {
+      selectGuest(matches[0].guest);
+      return;
+    }
+
+    const top = matches[0];
+    const second = matches[1];
+    if (top.score >= 900 || top.score - second.score >= 80) {
+      selectGuest(top.guest);
+      return;
+    }
+
+    setListOpen(true);
+    setActiveIndex(0);
   };
 
   const handleReset = () => {
     setName("");
     setStatus("idle");
     setResult(null);
+    setActiveIndex(-1);
+    setListOpen(false);
     setTimeout(() => inputRef.current?.focus(), 50);
   };
+
+  const handleInputChange = (value) => {
+    setName(value);
+    setStatus("idle");
+    setResult(null);
+    setActiveIndex(-1);
+    setListOpen(value.trim().length >= 1);
+  };
+
+  const handleInputKeyDown = (e) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (!showSuggestions && suggestions.length > 0) setListOpen(true);
+      setActiveIndex((prev) => Math.min(prev + 1, suggestions.length - 1));
+      return;
+    }
+
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((prev) => Math.max(prev - 1, 0));
+      return;
+    }
+
+    if (e.key === "Escape") {
+      setListOpen(false);
+      setActiveIndex(-1);
+      return;
+    }
+
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSearch();
+    }
+  };
+
+  useEffect(() => {
+    if (activeIndex >= 0 && listRef.current) {
+      const item = listRef.current.children[activeIndex];
+      item?.scrollIntoView({ block: "nearest" });
+    }
+  }, [activeIndex]);
 
   if (loading) {
     return (
@@ -864,18 +1077,45 @@ function GuestView({ guests, loading }) {
       {status === "idle" && (
         <>
           <p className="card-title">Find Your Seat</p>
-          <p className="card-sub">Enter your name exactly as it appears on your invitation</p>
-          <div className="field-wrap">
-            <label className="field-label">Your full name</label>
+          <p className="card-sub">Start typing your name — matching guests will appear as you type</p>
+          <div className="field-wrap suggest-wrap">
+            <label className="field-label" htmlFor="guest-name">Your full name</label>
             <input
+              id="guest-name"
               ref={inputRef}
               className="field-input"
               value={name}
-              onChange={e => setName(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && handleSearch()}
-              placeholder="e.g. Catherine Osei"
+              onChange={(e) => handleInputChange(e.target.value)}
+              onFocus={() => name.trim().length >= 1 && suggestions.length > 0 && setListOpen(true)}
+              onBlur={() => setTimeout(() => setListOpen(false), 150)}
+              onKeyDown={handleInputKeyDown}
+              placeholder="e.g. Sam, Catherine Osei"
+              autoComplete="off"
               autoFocus
+              role="combobox"
+              aria-expanded={showSuggestions}
+              aria-controls="guest-suggestions"
+              aria-activedescendant={activeIndex >= 0 ? `guest-option-${activeIndex}` : undefined}
             />
+            {showSuggestions && (
+              <ul id="guest-suggestions" className="suggest-list" ref={listRef} role="listbox">
+                {suggestions.map(({ guest, display }, index) => (
+                  <li key={`${display.name}-${index}`} role="option" id={`guest-option-${index}`} aria-selected={index === activeIndex}>
+                    <button
+                      type="button"
+                      className={`suggest-item${index === activeIndex ? " active" : ""}`}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => selectGuest(guest)}
+                    >
+                      {highlightName(display.name, name)}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {name.trim().length >= 1 && suggestions.length === 0 && (
+              <p className="suggest-hint">No matching names yet — keep typing or check spelling</p>
+            )}
           </div>
           <button className="btn btn-primary" onClick={handleSearch} disabled={!name.trim()}>Find My Seat</button>
         </>
