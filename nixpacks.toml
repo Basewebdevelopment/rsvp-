@@ -1,0 +1,5 @@
+# Force Node 20 (Supabase SDK requires >=20) and a plain Node build (no Caddy static-site layer).
+providers = ["node"]
+
+[phases.setup]
+nixPkgs = ["nodejs_20"]

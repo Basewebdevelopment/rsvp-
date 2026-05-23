@@ -56,6 +56,14 @@ if (!existsSync(envPath)) {
   if (!hasRequiredInProcess) {
     console.error("Missing .env and required variables are not set in the environment.");
     console.error(`Required: ${schema.required.join(", ")}`);
+    if (process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID) {
+      console.error("");
+      console.error("Railway: open your service → Variables and add:");
+      console.error("  VITE_SUPABASE_URL=https://xstctkokqziamnfljaxx.supabase.co");
+      console.error("  VITE_SUPABASE_PUBLISHABLE_KEY=<your Supabase publishable key>");
+      console.error("  VITE_SITE_URL=https://eddieoncloud26.up.railway.app");
+      console.error("Then trigger a new deploy (variables are baked in at build time).");
+    }
     process.exit(1);
   }
 }
