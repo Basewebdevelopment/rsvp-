@@ -728,7 +728,7 @@ function AdminView({ onSave, savedGuests, savedCoupleName, savedWeddingDate, adm
         </div>
         <div className="field-wrap">
           <label className="field-label">Wedding date</label>
-          <input className="field-input" value={weddingDate} onChange={e => setWeddingDate(e.target.value)} placeholder="21st June 2026" />
+          <input className="field-input" value={weddingDate} onChange={e => setWeddingDate(e.target.value)} placeholder="08 August 2026" />
         </div>
 
         <div style={{ marginTop: "1.5rem" }}>

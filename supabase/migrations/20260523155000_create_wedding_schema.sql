@@ -54,7 +54,7 @@ BEGIN
     updated_at = now()
   WHERE id = 1;
 
-  DELETE FROM guests;
+  DELETE FROM guests WHERE id IS NOT NULL;
 
   INSERT INTO guests (data)
   SELECT value
