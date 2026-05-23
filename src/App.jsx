@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { fetchWeddingData, publishWedding } from "./lib/supabase.js";
 import { sharePreviewText } from "./config/env.js";
+import { ENV_DEFAULTS } from "../env.defaults.js";
 
 const FONTS = `
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@200;300;400&display=swap');
@@ -811,14 +812,14 @@ function AdminView({ onSave, savedGuests, savedCoupleName, savedWeddingDate, adm
   );
 }
 
-function GuestView({ guests }) {
+function GuestView({ guests, loading }) {
   const [name, setName] = useState("");
   const [result, setResult] = useState(null);
   const [status, setStatus] = useState("idle");
   const inputRef = useRef(null);
 
   const handleSearch = () => {
-    if (!name.trim()) return;
+    if (!name.trim() || loading) return;
     const found = findGuest(guests, name);
     if (found) {
       setResult(getGuestDisplay(found));
@@ -835,6 +836,17 @@ function GuestView({ guests }) {
     setResult(null);
     setTimeout(() => inputRef.current?.focus(), 50);
   };
+
+  if (loading) {
+    return (
+      <div className="card fade-up-2" style={{ textAlign: "center" }}>
+        <p className="card-title" style={{ fontSize: "1.25rem", marginBottom: "0.75rem" }}>Loading guest list…</p>
+        <p style={{ color: "var(--text-muted)", fontSize: "12px", letterSpacing: "0.08em", lineHeight: 1.7 }}>
+          One moment while we fetch your seating details.
+        </p>
+      </div>
+    );
+  }
 
   if (guests.length === 0) {
     return (
@@ -958,7 +970,7 @@ export default function App() {
       } catch (err) {
         if (!cancelled) setLoadError(err.message || "Failed to load wedding data");
       } finally {
-        if (!cancelled) setLoading(false);
+        setLoading(false);
       }
     }
 
@@ -976,24 +988,8 @@ export default function App() {
     setWeddingDate(date);
   };
 
-  const displayCouple = coupleName || "Edmond & Claudia";
-  const displayDate = weddingDate;
-
-  if (loading) {
-    return (
-      <>
-        <style>{FONTS + CSS}</style>
-        <PageBackground />
-        <div className="page">
-          <div className="content">
-            <div className="hero">
-              <p className="card-sub" style={{ marginBottom: 0 }}>Loading wedding details…</p>
-            </div>
-          </div>
-        </div>
-      </>
-    );
-  }
+  const displayCouple = coupleName || ENV_DEFAULTS.VITE_COUPLE_NAMES;
+  const displayDate = weddingDate || ENV_DEFAULTS.VITE_WEDDING_DATE;
 
   return (
     <>
@@ -1032,6 +1028,7 @@ export default function App() {
           )}
 
           {!loadError && (
+          <>
           <div className="nav-wrap fade-up-3">
             <div className="nav-switch">
               <button className={`nav-item ${view === "guest" ? "active" : ""}`} onClick={() => setView("guest")}>Find My Seat</button>
@@ -1039,7 +1036,7 @@ export default function App() {
             </div>
           </div>
 
-          {view === "guest" && <GuestView guests={guests} />}
+          {view === "guest" && <GuestView guests={guests} loading={loading} />}
 
           {view === "admin" && !adminUnlocked && (
             <div className="card fade-up-2 admin-gate">
@@ -1070,6 +1067,8 @@ export default function App() {
               savedWeddingDate={weddingDate}
               adminPassword={adminPw}
             />
+          )}
+          </>
           )}
         </div>
       </div>
