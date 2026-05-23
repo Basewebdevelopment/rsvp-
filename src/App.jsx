@@ -1150,7 +1150,9 @@ function GuestView({ guests, loading }) {
 
 function updateShareMeta(coupleName, weddingDate) {
   const { title, description } = sharePreviewText(coupleName, weddingDate);
-  const imagePath = `${window.location.origin}/images/og-share.png`;
+  const origin = window.location.origin;
+  const imagePath = `${origin}/images/og-share.png`;
+  const pageUrl = `${origin}/`;
 
   document.title = title;
 
@@ -1169,10 +1171,13 @@ function updateShareMeta(coupleName, weddingDate) {
     tag.setAttribute("content", content);
   };
 
+  setMeta('meta[name="title"]', title);
   setMeta('meta[name="description"]', description);
+  setMeta('meta[property="og:url"]', pageUrl);
   setMeta('meta[property="og:title"]', title);
   setMeta('meta[property="og:description"]', description);
   setMeta('meta[property="og:image"]', imagePath);
+  setMeta('meta[property="og:image:secure_url"]', imagePath);
   setMeta('meta[name="twitter:title"]', title);
   setMeta('meta[name="twitter:description"]', description);
   setMeta('meta[name="twitter:image"]', imagePath);

@@ -12,7 +12,7 @@ export function sharePreviewCopy(
 ) {
   return {
     title: `${coupleNames} · ${SITE_LABEL}`,
-    description: `Please visit this website to find the seat you'll be sitting at — ${coupleNames}, ${weddingDate}.`,
+    description: `Navigate here to find the seat you'll be sitting at. ${coupleNames} · ${weddingDate}.`,
   };
 }
 

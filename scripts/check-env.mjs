@@ -1,6 +1,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveSiteUrl } from "./resolve-site-url.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const schema = JSON.parse(readFileSync(resolve(root, "env.schema.json"), "utf8"));
@@ -40,6 +41,10 @@ function loadVars() {
   for (const key of Object.keys(schema.properties)) {
     const fromProcess = process.env[key]?.trim();
     if (fromProcess) vars[key] = fromProcess;
+  }
+
+  if (!vars.VITE_SITE_URL?.trim() && resolveSiteUrl()) {
+    vars.VITE_SITE_URL = resolveSiteUrl();
   }
 
   return vars;
