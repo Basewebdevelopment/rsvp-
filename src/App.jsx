@@ -121,14 +121,14 @@ body, #root {
   font-weight: 400;
   color: var(--heading);
   text-align: center;
-  line-height: 1.05;
+  line-height: 1.15;
   letter-spacing: 0.01em;
   margin-bottom: 0.5rem;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: center;
-  gap: 0.2em 0.45em;
+  gap: 0.25em 0.5em;
 }
 
 .couple-names em {
@@ -222,21 +222,24 @@ body, #root {
 
 .suggest-wrap {
   position: relative;
+  margin-bottom: 0.25rem;
 }
 
 .suggest-list {
   position: absolute;
-  top: calc(100% + 4px);
+  top: calc(100% + 6px);
   left: 0;
   right: 0;
   background: var(--input-bg);
   border: 0.5px solid var(--border-strong);
   border-radius: 4px;
   box-shadow: var(--shadow);
-  max-height: 240px;
+  max-height: min(240px, 42vh);
   overflow-y: auto;
-  z-index: 20;
+  z-index: 30;
   list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .suggest-item {
