@@ -16,15 +16,11 @@ export function sharePreviewCopy(
   };
 }
 
-export const REQUIRED_AT_RUNTIME = [
-  "VITE_SUPABASE_URL",
-  "VITE_SUPABASE_PUBLISHABLE_KEY",
-];
+export const REQUIRED_AT_RUNTIME = [];
 
-export const REQUIRED_AT_BUILD = [
-  "VITE_SUPABASE_URL",
-  "VITE_SUPABASE_PUBLISHABLE_KEY",
-];
+export const REQUIRED_AT_BUILD = [];
+
+export const REQUIRED_AT_SERVER = ["DATABASE_URL"];
 
 export const RECOMMENDED_AT_BUILD = [
   "VITE_SITE_URL",

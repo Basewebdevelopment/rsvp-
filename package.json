@@ -7,22 +7,26 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -k \"npm:dev:api\" \"npm:dev:client\"",
+    "dev:client": "vite",
+    "dev:api": "node server/index.js",
     "build": "npm run env:check && vite build",
     "preview": "vite preview",
-    "start": "serve -s dist -l ${PORT:-3000}",
+    "start": "NODE_ENV=production node server/index.js",
+    "seed": "node scripts/seed-db.mjs",
     "env:check": "node scripts/check-env.mjs",
     "env:check:example": "node scripts/check-env.mjs --example",
     "og:generate": "python3 scripts/generate-og-share.py"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.49.8",
+    "@neondatabase/serverless": "^1.0.0",
+    "express": "^4.21.2",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "serve": "^14.2.4"
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.5.2",
+    "concurrently": "^9.1.2",
     "vite": "^6.3.5"
   }
 }

@@ -33,4 +33,9 @@ function siteMetaPlugin() {
 
 export default defineConfig({
   plugins: [react(), siteMetaPlugin()],
+  server: {
+    proxy: {
+      "/api": "http://localhost:3000",
+    },
+  },
 });

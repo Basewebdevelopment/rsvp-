@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { fetchWeddingData, publishWedding } from "./lib/supabase.js";
+import { fetchWeddingData, publishWedding } from "./lib/api.js";
 import { sharePreviewText } from "./config/env.js";
+import { TRADITIONAL_CEREMONY } from "./data/programme.js";
 import { ENV_DEFAULTS, SITE_LABEL } from "../env.defaults.js";
 
 const FONTS = `
@@ -84,7 +85,7 @@ body, #root {
   position: relative;
   z-index: 2;
   width: 100%;
-  max-width: 440px;
+  max-width: 480px;
 }
 
 .hero {
@@ -464,8 +465,10 @@ body, #root {
 }
 
 .nav-switch {
-  display: inline-flex;
-  gap: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  width: 100%;
   margin: 0 auto 1.5rem;
   padding: 4px;
   background: rgba(255, 255, 255, 0.62);
@@ -479,28 +482,108 @@ body, #root {
 .nav-wrap {
   display: flex;
   justify-content: center;
+  width: 100%;
   margin-bottom: 0.25rem;
 }
 
 .nav-item {
-  font-size: 9.5px;
-  letter-spacing: 0.22em;
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 0.7rem 1.1rem;
+  padding: 0.75rem 0.35rem;
   border-radius: 999px;
   border: none;
   transition: color 0.2s, background 0.2s, box-shadow 0.2s;
   background: none;
   font-family: 'Jost', sans-serif;
   white-space: nowrap;
+  text-align: center;
+  line-height: 1.25;
+}
+
+.nav-item .nav-label-long {
+  display: none;
+}
+
+.nav-item .nav-label-short {
+  display: inline;
+}
+
+@media (min-width: 420px) {
+  .nav-item {
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    padding: 0.75rem 0.5rem;
+  }
+
+  .nav-item .nav-label-long {
+    display: inline;
+  }
+
+  .nav-item .nav-label-short {
+    display: none;
+  }
 }
 
 .nav-item.active {
   color: var(--heading);
   background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 2px 10px rgba(44, 36, 24, 0.08);
+}
+
+.programme-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.programme-item {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  padding: 1.1rem 0;
+  border-bottom: 0.5px solid rgba(184, 168, 138, 0.25);
+}
+
+.programme-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.programme-item:first-child {
+  padding-top: 0.25rem;
+}
+
+.programme-step {
+  flex-shrink: 0;
+  width: 1.75rem;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--gold-dim);
+  text-align: center;
+  padding-top: 0.15rem;
+}
+
+.programme-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.programme-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem;
+  color: var(--heading);
+  line-height: 1.35;
+}
+
+.programme-speaker {
+  margin-top: 0.35rem;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-style: italic;
 }
 
 .footer-note {
@@ -608,11 +691,8 @@ function pickField(row, keys) {
   return "";
 }
 
-function formatTableDisplay(tableNum, seatNum) {
-  const parts = [];
-  if (tableNum) parts.push(`Table ${tableNum}`);
-  if (seatNum) parts.push(`Seat ${seatNum}`);
-  return parts.length ? parts.join(" · ") : "—";
+function formatTableDisplay(tableNum) {
+  return tableNum ? `Table ${tableNum}` : "—";
 }
 
 function normalizeGuestRow(row) {
@@ -621,17 +701,15 @@ function normalizeGuestRow(row) {
   ]) || [row.first_name, row.last_name].filter(Boolean).join(" ");
 
   const tableNumber = pickField(row, ["table", "table_number", "table_no", "tablenumber"]);
-  const seat = pickField(row, ["seat", "seat_number", "seat_no", "seatnumber"]);
   const section = pickField(row, ["section", "seating_category", "category", "seating", "area"]);
   const meal = pickField(row, ["meal", "meal_choice", "dietary", "menu"]);
 
   return {
     name,
     table_number: tableNumber,
-    seat,
     section,
     meal,
-    table: formatTableDisplay(tableNumber, seat),
+    table: formatTableDisplay(tableNumber),
   };
 }
 
@@ -648,7 +726,7 @@ function parseCSV(text) {
   const hasHeader = looksLikeHeaderRow(firstCells);
   const dataLines = hasHeader ? lines.slice(1) : lines;
 
-  const defaultHeaders = ["table", "section", "seat", "name"];
+  const defaultHeaders = ["table", "section", "name"];
   const headers = hasHeader
     ? firstCells.map(normalizeHeader)
     : defaultHeaders.slice(0, firstCells.length);
@@ -761,13 +839,12 @@ function highlightName(name, query) {
 function getGuestDisplay(g) {
   const name = g.name || g.full_name || [g.first_name, g.last_name].filter(Boolean).join(" ") || "Guest";
   const tableNumber = g.table_number || pickField(g, ["table", "table_no"]);
-  const seat = g.seat || pickField(g, ["seat_number", "seat_no"]);
-  const table = g.table || formatTableDisplay(tableNumber, seat);
+  const table = g.table || formatTableDisplay(tableNumber);
   const section = g.section || pickField(g, ["seating_category", "category", "seating"]);
   const meal = g.meal || pickField(g, ["meal_choice", "dietary", "menu"]);
   const detail = section || meal;
 
-  return { name, table, tableNumber, seat, section, meal, detail };
+  return { name, table, tableNumber, section, meal, detail };
 }
 
 function getTableKey(g) {
@@ -780,6 +857,21 @@ function uniqueTables(guests) {
 
 function uniqueSections(guests) {
   return [...new Set(guests.map((g) => g.section).filter(Boolean))].length;
+}
+
+const NAV_TABS = [
+  { id: "guest", long: "Find My Seat", short: "Find Seat" },
+  { id: "programme", long: "Programme Outline", short: "Programme" },
+  { id: "admin", long: "Couple's Portal", short: "Portal" },
+];
+
+function NavLabel({ long, short }) {
+  return (
+    <>
+      <span className="nav-label-long">{long}</span>
+      <span className="nav-label-short">{short}</span>
+    </>
+  );
 }
 
 function Diamond() {
@@ -870,10 +962,10 @@ function AdminView({ onSave, savedGuests, savedCoupleName, savedWeddingDate, adm
           <p className="card-title" style={{ fontSize: "1.1rem", marginBottom: "0.3rem" }}>Guest List CSV</p>
           <p className="card-sub" style={{ marginBottom: "1.25rem" }}>
             Supports seating-chart CSVs like{" "}
-            <span style={{ color: "var(--gold-dim)", letterSpacing: "0.05em" }}>table, section, seat, name</span>
+            <span style={{ color: "var(--gold-dim)", letterSpacing: "0.05em" }}>table, section, name</span>
             {" "}or simple lists with{" "}
-            <span style={{ color: "var(--gold-dim)", letterSpacing: "0.05em" }}>name, table, meal</span>
-            . Empty seats are skipped automatically.
+            <span style={{ color: "var(--gold-dim)", letterSpacing: "0.05em" }}>name, table</span>
+            . Empty rows are skipped automatically.
           </p>
 
           <div
@@ -1151,6 +1243,29 @@ function GuestView({ guests, loading }) {
   );
 }
 
+function ProgrammeView() {
+  const { title, items } = TRADITIONAL_CEREMONY;
+
+  return (
+    <div className="card fade-up-2">
+      <p className="card-title">Programme Outline</p>
+      <p className="card-sub">{title}</p>
+
+      <ol className="programme-list">
+        {items.map((item, index) => (
+          <li key={index} className="programme-item">
+            <span className="programme-step">{index + 1}</span>
+            <div className="programme-body">
+              <p className="programme-label">{item.label}</p>
+              {item.speaker && <p className="programme-speaker">{item.speaker}</p>}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
 function updateShareMeta(coupleName, weddingDate) {
   const { title, description } = sharePreviewText(coupleName, weddingDate);
   const origin = window.location.origin;
@@ -1279,12 +1394,23 @@ export default function App() {
           <>
           <div className="nav-wrap fade-up-3">
             <div className="nav-switch">
-              <button className={`nav-item ${view === "guest" ? "active" : ""}`} onClick={() => setView("guest")}>Find My Seat</button>
-              <button className={`nav-item ${view === "admin" ? "active" : ""}`} onClick={() => setView("admin")}>Couple's Portal</button>
+              {NAV_TABS.map(({ id, long, short }) => (
+                <button
+                  key={id}
+                  type="button"
+                  className={`nav-item ${view === id ? "active" : ""}`}
+                  title={long}
+                  onClick={() => setView(id)}
+                >
+                  <NavLabel long={long} short={short} />
+                </button>
+              ))}
             </div>
           </div>
 
           {view === "guest" && <GuestView guests={guests} loading={loading} />}
+
+          {view === "programme" && <ProgrammeView />}
 
           {view === "admin" && !adminUnlocked && (
             <div className="card fade-up-2 admin-gate">

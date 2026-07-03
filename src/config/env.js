@@ -6,8 +6,7 @@ function readEnv(name, fallback = "") {
 }
 
 export const env = {
-  supabaseUrl: readEnv("VITE_SUPABASE_URL"),
-  supabasePublishableKey: readEnv("VITE_SUPABASE_PUBLISHABLE_KEY"),
+  apiUrl: readEnv("VITE_API_URL"),
   siteUrl: readEnv("VITE_SITE_URL"),
   coupleNames: readEnv("VITE_COUPLE_NAMES", ENV_DEFAULTS.VITE_COUPLE_NAMES),
   weddingDate: readEnv("VITE_WEDDING_DATE", ENV_DEFAULTS.VITE_WEDDING_DATE),
