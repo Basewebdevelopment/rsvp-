@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { fetchWeddingData, publishWedding } from "./lib/api.js";
 import { sharePreviewText } from "./config/env.js";
-import { TRADITIONAL_CEREMONY } from "./data/programme.js";
+import { PROGRAMME_SECTIONS } from "./data/programme.js";
 import { ENV_DEFAULTS, SITE_LABEL } from "../env.defaults.js";
 
 const FONTS = `
@@ -531,6 +531,21 @@ body, #root {
   color: var(--heading);
   background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 2px 10px rgba(44, 36, 24, 0.08);
+}
+
+.programme-section + .programme-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 0.5px solid rgba(184, 168, 138, 0.35);
+}
+
+.programme-section-title {
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  text-align: center;
+  margin-bottom: 1rem;
 }
 
 .programme-list {
@@ -1244,24 +1259,27 @@ function GuestView({ guests, loading }) {
 }
 
 function ProgrammeView() {
-  const { title, items } = TRADITIONAL_CEREMONY;
-
   return (
     <div className="card fade-up-2">
       <p className="card-title">Programme Outline</p>
-      <p className="card-sub">{title}</p>
+      <p className="card-sub">Ceremony &amp; reception order of the day</p>
 
-      <ol className="programme-list">
-        {items.map((item, index) => (
-          <li key={index} className="programme-item">
-            <span className="programme-step">{index + 1}</span>
-            <div className="programme-body">
-              <p className="programme-label">{item.label}</p>
-              {item.speaker && <p className="programme-speaker">{item.speaker}</p>}
-            </div>
-          </li>
-        ))}
-      </ol>
+      {PROGRAMME_SECTIONS.map((section) => (
+        <section key={section.title} className="programme-section">
+          <p className="programme-section-title">{section.title}</p>
+          <ol className="programme-list">
+            {section.items.map((item, index) => (
+              <li key={`${section.title}-${index}`} className="programme-item">
+                <span className="programme-step">{index + 1}</span>
+                <div className="programme-body">
+                  <p className="programme-label">{item.label}</p>
+                  {item.speaker && <p className="programme-speaker">{item.speaker}</p>}
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
     </div>
   );
 }
