@@ -12,7 +12,7 @@ export const PROGRAMME_SECTIONS = [
       { label: "Marriage ceremony" },
       { label: "Word of exhortation and blessing", speaker: "Pastor Charles Adarkwa" },
       { label: "Musical interlude" },
-      { label: "Closing prayer", speaker: "Rev Fred Agyenim Boateng" },
+      { label: "Closing prayer", speaker: "Rev George Abekah" },
     ],
   },
   {
