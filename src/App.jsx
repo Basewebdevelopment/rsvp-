@@ -19,6 +19,7 @@ body, #root {
 }
 
 :root {
+  --photo-height: min(46vh, calc(min(100vw, 819px) * 1.15));
   --gold: #9a7340;
   --gold-light: #c4a066;
   --gold-dim: #6b5d4a;
@@ -40,10 +41,22 @@ body, #root {
   position: fixed;
   inset: 0;
   z-index: 0;
-  background-image: url("/images/couple-bg.png");
-  background-size: cover;
-  background-position: center 18%;
-  background-repeat: no-repeat;
+  overflow: hidden;
+  background: #d4c9b8;
+}
+
+.page-bg-image {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(100vw, 819px);
+  height: var(--photo-height);
+  object-fit: cover;
+  object-position: center 8%;
+  display: block;
+  pointer-events: none;
+  user-select: none;
 }
 
 .page-bg-overlay {
@@ -53,12 +66,12 @@ body, #root {
   pointer-events: none;
   background:
     linear-gradient(180deg,
-      rgba(28, 22, 16, 0.28) 0%,
-      rgba(28, 22, 16, 0.08) 32%,
-      rgba(250, 245, 235, 0.52) 68%,
-      rgba(255, 252, 247, 0.92) 100%
-    ),
-    radial-gradient(ellipse 90% 60% at 50% 22%, transparent 0%, rgba(28, 22, 16, 0.18) 100%);
+      rgba(28, 22, 16, 0.18) 0%,
+      rgba(28, 22, 16, 0) 22%,
+      rgba(250, 245, 235, 0.75) 38%,
+      rgba(255, 252, 247, 0.98) 46%,
+      rgba(255, 252, 247, 1) 100%
+    );
 }
 
 .page {
@@ -66,10 +79,16 @@ body, #root {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
-  padding: 2rem 1.25rem 2.5rem;
+  justify-content: flex-start;
+  padding: 0 1.25rem 2.5rem;
   position: relative;
   overflow: hidden;
+}
+
+.photo-spacer {
+  flex-shrink: 0;
+  width: 100%;
+  height: var(--photo-height);
 }
 
 .grain {
@@ -86,11 +105,17 @@ body, #root {
   z-index: 2;
   width: 100%;
   max-width: 480px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-top: 0.75rem;
 }
 
 .hero {
   text-align: center;
   margin-bottom: 1.25rem;
+  padding: 0 0.25rem;
 }
 
 .ornament {
@@ -593,10 +618,26 @@ body, #root {
   line-height: 1.35;
 }
 
+.programme-time {
+  margin-bottom: 0.3rem;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+}
+
 .programme-speaker {
   margin-top: 0.35rem;
   font-size: 11px;
   letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.programme-note {
+  margin-top: 0.3rem;
+  font-size: 12px;
+  line-height: 1.4;
   color: var(--text-muted);
   font-style: italic;
 }
@@ -901,7 +942,17 @@ function Diamond() {
 function PageBackground() {
   return (
     <>
-      <div className="page-bg" aria-hidden="true" />
+      <div className="page-bg" aria-hidden="true">
+        <img
+          className="page-bg-image"
+          src="/images/couple-portrait.jpg"
+          alt=""
+          width={819}
+          height={1024}
+          decoding="async"
+          fetchPriority="high"
+        />
+      </div>
       <div className="page-bg-overlay" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
     </>
@@ -965,12 +1016,12 @@ function AdminView({ onSave, savedGuests, savedCoupleName, savedWeddingDate, adm
         <p className="card-sub">How guests will see your wedding</p>
 
         <div className="field-wrap">
-          <label className="field-label">Your names (e.g. Edmond & Claudia)</label>
-          <input className="field-input" value={coupleName} onChange={e => setCoupleName(e.target.value)} placeholder="Edmond & Claudia" />
+          <label className="field-label">Your names (e.g. Steven & Priscilla)</label>
+          <input className="field-input" value={coupleName} onChange={e => setCoupleName(e.target.value)} placeholder="Steven & Priscilla" />
         </div>
         <div className="field-wrap">
           <label className="field-label">Wedding date</label>
-          <input className="field-input" value={weddingDate} onChange={e => setWeddingDate(e.target.value)} placeholder="08 August 2026" />
+          <input className="field-input" value={weddingDate} onChange={e => setWeddingDate(e.target.value)} placeholder="19 September 2026" />
         </div>
 
         <div style={{ marginTop: "1.5rem" }}>
@@ -1262,7 +1313,7 @@ function ProgrammeView() {
   return (
     <div className="card fade-up-2">
       <p className="card-title">Programme Outline</p>
-      <p className="card-sub">Ceremony &amp; reception order of the day</p>
+      <p className="card-sub">Order of service for the white wedding ceremony</p>
 
       {PROGRAMME_SECTIONS.map((section) => (
         <section key={section.title} className="programme-section">
@@ -1270,10 +1321,12 @@ function ProgrammeView() {
           <ol className="programme-list">
             {section.items.map((item, index) => (
               <li key={`${section.title}-${index}`} className="programme-item">
-                <span className="programme-step">{index + 1}</span>
+                <span className="programme-step">{String(index + 1).padStart(2, "0")}</span>
                 <div className="programme-body">
+                  {item.time && <p className="programme-time">{item.time}</p>}
                   <p className="programme-label">{item.label}</p>
                   {item.speaker && <p className="programme-speaker">{item.speaker}</p>}
+                  {item.note && <p className="programme-note">{item.note}</p>}
                 </div>
               </li>
             ))}
@@ -1378,6 +1431,7 @@ export default function App() {
       <PageBackground />
 
       <div className="page">
+        <div className="photo-spacer" aria-hidden="true" />
         <div className="content">
           <header className="hero">
             <div className="ornament fade-up">

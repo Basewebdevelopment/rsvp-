@@ -1,7 +1,7 @@
 /** Shared defaults for build-time and runtime env. Keep in sync with env.schema.json */
 export const ENV_DEFAULTS = {
-  VITE_COUPLE_NAMES: "Edmond & Claudia",
-  VITE_WEDDING_DATE: "08 August 2026",
+  VITE_COUPLE_NAMES: "Steven & Priscilla",
+  VITE_WEDDING_DATE: "19 September 2026",
 };
 
 export const SITE_LABEL = "Seating Plan";
