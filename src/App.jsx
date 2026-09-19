@@ -180,23 +180,50 @@ body, #root {
   margin-bottom: 0.5rem;
 }
 
-.venue-line {
+.venue-card {
   text-align: center;
+  margin-bottom: 1rem;
+}
+
+.venue-card-label {
   font-size: 10px;
-  letter-spacing: 0.12em;
-  color: var(--text-soft);
-  line-height: 1.7;
-  margin-bottom: 0;
-}
-
-.venue-line a {
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
   color: var(--gold-dim);
-  text-decoration: none;
-  border-bottom: 0.5px solid rgba(154, 115, 64, 0.35);
+  margin-bottom: 0.75rem;
 }
 
-.venue-line a:hover {
-  color: var(--gold);
+.venue-card-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.45rem;
+  font-weight: 500;
+  color: var(--heading);
+  margin-bottom: 0.35rem;
+}
+
+.venue-card-address {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 0.85rem;
+}
+
+.venue-card-times {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  margin-bottom: 1.1rem;
+}
+
+.venue-card .btn {
+  max-width: 220px;
+  margin: 0 auto;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .card {
@@ -1328,6 +1355,30 @@ function GuestView({ guests, loading }) {
   );
 }
 
+function VenueCard({ name, address, mapsUrl, arrivalTime, ceremonyTime }) {
+  if (!name || !address) return null;
+
+  return (
+    <div className="card venue-card fade-up-2">
+      <p className="venue-card-label">Today&apos;s Venue</p>
+      <p className="venue-card-name">{name}</p>
+      <p className="venue-card-address">{address}</p>
+      {(arrivalTime || ceremonyTime) && (
+        <p className="venue-card-times">
+          {arrivalTime && <>Arrive by {arrivalTime}</>}
+          {arrivalTime && ceremonyTime && " · "}
+          {ceremonyTime && <>Ceremony {ceremonyTime}</>}
+        </p>
+      )}
+      {mapsUrl && (
+        <a className="btn btn-primary" href={mapsUrl} target="_blank" rel="noopener noreferrer">
+          Get Directions
+        </a>
+      )}
+    </div>
+  );
+}
+
 function ProgrammeView() {
   return (
     <div className="card fade-up-2">
@@ -1446,6 +1497,8 @@ export default function App() {
   const venueName = ENV_DEFAULTS.VITE_VENUE_NAME;
   const venueAddress = ENV_DEFAULTS.VITE_VENUE_ADDRESS;
   const venueMapsUrl = ENV_DEFAULTS.VITE_VENUE_MAPS_URL;
+  const arrivalTime = ENV_DEFAULTS.VITE_ARRIVAL_TIME;
+  const ceremonyTime = ENV_DEFAULTS.VITE_CEREMONY_TIME;
 
   return (
     <>
@@ -1473,19 +1526,6 @@ export default function App() {
             </h1>
 
             {displayDate && <p className="date-line fade-up-2">{displayDate}</p>}
-            {venueName && venueAddress && (
-              <p className="venue-line fade-up-2">
-                {venueName}
-                <br />
-                {venueAddress}
-                {venueMapsUrl && (
-                  <>
-                    {" · "}
-                    <a href={venueMapsUrl} target="_blank" rel="noopener noreferrer">Directions</a>
-                  </>
-                )}
-              </p>
-            )}
           </header>
 
           {loadError && (
@@ -1499,6 +1539,14 @@ export default function App() {
 
           {!loadError && (
           <>
+          <VenueCard
+            name={venueName}
+            address={venueAddress}
+            mapsUrl={venueMapsUrl}
+            arrivalTime={arrivalTime}
+            ceremonyTime={ceremonyTime}
+          />
+
           <div className="nav-wrap fade-up-3">
             <div className="nav-switch">
               {NAV_TABS.map(({ id, long, short }) => (

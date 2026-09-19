@@ -5,6 +5,8 @@ export const ENV_DEFAULTS = {
   VITE_VENUE_NAME: "Castle Bromwich Hall",
   VITE_VENUE_ADDRESS: "Chester Road, Birmingham, B36 9DE",
   VITE_VENUE_MAPS_URL: "https://maps.google.com/?q=Castle+Bromwich+Hall+Hotel+B36+9DE",
+  VITE_ARRIVAL_TIME: "11:45 am",
+  VITE_CEREMONY_TIME: "12:00 pm",
 };
 
 export const SITE_LABEL = "Seating Plan";
@@ -15,7 +17,7 @@ export function sharePreviewCopy(
 ) {
   return {
     title: `${coupleNames} · ${SITE_LABEL}`,
-    description: `Navigate here to find the seat you'll be sitting at. ${coupleNames} · ${weddingDate}.`,
+    description: `${coupleNames} · ${weddingDate} · Castle Bromwich Hall, Chester Road, Birmingham B36 9DE`,
   };
 }
 
