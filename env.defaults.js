@@ -2,6 +2,9 @@
 export const ENV_DEFAULTS = {
   VITE_COUPLE_NAMES: "Steven & Priscilla",
   VITE_WEDDING_DATE: "19 September 2026",
+  VITE_VENUE_NAME: "Castle Bromwich Hall",
+  VITE_VENUE_ADDRESS: "Chester Road, Birmingham, B36 9DE",
+  VITE_VENUE_MAPS_URL: "https://maps.google.com/?q=Castle+Bromwich+Hall+Hotel+B36+9DE",
 };
 
 export const SITE_LABEL = "Seating Plan";

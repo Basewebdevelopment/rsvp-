@@ -177,7 +177,26 @@ body, #root {
   letter-spacing: 0.38em;
   color: var(--text-muted);
   text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.venue-line {
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-soft);
+  line-height: 1.7;
   margin-bottom: 0;
+}
+
+.venue-line a {
+  color: var(--gold-dim);
+  text-decoration: none;
+  border-bottom: 0.5px solid rgba(154, 115, 64, 0.35);
+}
+
+.venue-line a:hover {
+  color: var(--gold);
 }
 
 .card {
@@ -1424,6 +1443,9 @@ export default function App() {
 
   const displayCouple = coupleName || ENV_DEFAULTS.VITE_COUPLE_NAMES;
   const displayDate = weddingDate || ENV_DEFAULTS.VITE_WEDDING_DATE;
+  const venueName = ENV_DEFAULTS.VITE_VENUE_NAME;
+  const venueAddress = ENV_DEFAULTS.VITE_VENUE_ADDRESS;
+  const venueMapsUrl = ENV_DEFAULTS.VITE_VENUE_MAPS_URL;
 
   return (
     <>
@@ -1451,6 +1473,19 @@ export default function App() {
             </h1>
 
             {displayDate && <p className="date-line fade-up-2">{displayDate}</p>}
+            {venueName && venueAddress && (
+              <p className="venue-line fade-up-2">
+                {venueName}
+                <br />
+                {venueAddress}
+                {venueMapsUrl && (
+                  <>
+                    {" · "}
+                    <a href={venueMapsUrl} target="_blank" rel="noopener noreferrer">Directions</a>
+                  </>
+                )}
+              </p>
+            )}
           </header>
 
           {loadError && (
