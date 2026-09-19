@@ -16,13 +16,15 @@
     "seed": "node scripts/seed-db.mjs",
     "env:check": "node scripts/check-env.mjs",
     "env:check:example": "node scripts/check-env.mjs --example",
-    "og:generate": "python3 scripts/generate-og-share.py"
+    "og:generate": "python3 scripts/generate-og-share.py",
+    "email:reminder": "node scripts/send-reminder-email.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0",
     "express": "^4.21.2",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "resend": "^6.28.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.5.2",
