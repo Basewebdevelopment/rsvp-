@@ -1,4 +1,6 @@
 import { neon } from "@neondatabase/serverless";
+import { ENV_DEFAULTS } from "../env.defaults.js";
+import { buildGuestRows } from "../scripts/seed-guests.mjs";
 
 let sql;
 
@@ -12,6 +14,14 @@ export function getDb() {
 }
 
 export async function fetchWeddingData() {
+  if (!process.env.DATABASE_URL) {
+    return {
+      coupleName: ENV_DEFAULTS.VITE_COUPLE_NAMES,
+      weddingDate: ENV_DEFAULTS.VITE_WEDDING_DATE,
+      guests: buildGuestRows(),
+    };
+  }
+
   const db = getDb();
   const [settingsRows, guestRows] = await Promise.all([
     db`SELECT couple_name, wedding_date FROM wedding_settings WHERE id = 1`,

@@ -1,6 +1,6 @@
 /** Shared defaults for build-time and runtime env. Keep in sync with env.schema.json */
 export const ENV_DEFAULTS = {
-  VITE_COUPLE_NAMES: "Steven & Priscilla",
+  VITE_COUPLE_NAMES: "Kangwa & Joseph",
   VITE_WEDDING_DATE: "19 September 2026",
   VITE_VENUE_NAME: "Castle Bromwich Hall",
   VITE_VENUE_ADDRESS: "Chester Road, Birmingham, B36 9DE",

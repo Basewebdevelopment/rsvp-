@@ -28,7 +28,7 @@ Options:
 
 Required env:
   RESEND_API_KEY
-  RESEND_FROM       e.g. "Steven & Priscilla <onboarding@resend.dev>"
+  RESEND_FROM       e.g. "Kangwa & Joseph <onboarding@resend.dev>"
 `);
 }
 
@@ -137,7 +137,7 @@ async function main() {
   }
 
   if (!apiKey) throw new Error("RESEND_API_KEY is not set in .env");
-  if (!from) throw new Error('RESEND_FROM is not set in .env (e.g. "Steven & Priscilla <onboarding@resend.dev>")');
+  if (!from) throw new Error('RESEND_FROM is not set in .env (e.g. "Kangwa & Joseph <onboarding@resend.dev>")');
 
   const resend = new Resend(apiKey);
   let sent = 0;

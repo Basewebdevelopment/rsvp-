@@ -19,7 +19,7 @@ body, #root {
 }
 
 :root {
-  --photo-height: min(46vh, calc(min(100vw, 819px) * 1.15));
+  --photo-height: min(58vh, calc(min(100vw, 1100px) * 0.666));
   --gold: #9a7340;
   --gold-light: #c4a066;
   --gold-dim: #6b5d4a;
@@ -50,10 +50,10 @@ body, #root {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: min(100vw, 819px);
+  width: min(100vw, 1100px);
   height: var(--photo-height);
   object-fit: cover;
-  object-position: center 8%;
+  object-position: center center;
   display: block;
   pointer-events: none;
   user-select: none;
@@ -66,10 +66,11 @@ body, #root {
   pointer-events: none;
   background:
     linear-gradient(180deg,
-      rgba(28, 22, 16, 0.18) 0%,
-      rgba(28, 22, 16, 0) 22%,
-      rgba(250, 245, 235, 0.75) 38%,
-      rgba(255, 252, 247, 0.98) 46%,
+      rgba(28, 22, 16, 0.14) 0%,
+      rgba(28, 22, 16, 0) 14%,
+      rgba(250, 245, 235, 0) 40%,
+      rgba(250, 245, 235, 0.78) 52%,
+      rgba(255, 252, 247, 0.98) 60%,
       rgba(255, 252, 247, 1) 100%
     );
 }
@@ -116,6 +117,17 @@ body, #root {
   text-align: center;
   margin-bottom: 1.25rem;
   padding: 0 0.25rem;
+  color: #fffaf3;
+}
+
+.hero .ornament {
+  color: rgba(255, 250, 243, 0.82);
+  text-shadow: 0 1px 10px rgba(28, 22, 16, 0.45);
+}
+
+.hero .ornament-line::before,
+.hero .ornament-line::after {
+  background: linear-gradient(to right, transparent, rgba(255, 250, 243, 0.55), transparent);
 }
 
 .ornament {
@@ -145,7 +157,8 @@ body, #root {
   font-family: 'Cormorant Garamond', serif;
   font-size: clamp(2.4rem, 8vw, 3.6rem);
   font-weight: 400;
-  color: var(--heading);
+  color: #fffaf3;
+  text-shadow: 0 2px 18px rgba(28, 22, 16, 0.55);
   text-align: center;
   line-height: 1.15;
   letter-spacing: 0.01em;
@@ -167,63 +180,19 @@ body, #root {
   font-size: 0.42em;
   font-style: normal;
   font-weight: 300;
-  color: var(--gold);
+  color: #f0dfc2;
   letter-spacing: 0.15em;
+  text-shadow: 0 2px 12px rgba(28, 22, 16, 0.45);
 }
 
 .date-line {
   text-align: center;
   font-size: 10px;
   letter-spacing: 0.38em;
-  color: var(--text-muted);
+  color: rgba(255, 250, 243, 0.9);
+  text-shadow: 0 1px 10px rgba(28, 22, 16, 0.5);
   text-transform: uppercase;
   margin-bottom: 0.5rem;
-}
-
-.venue-card {
-  text-align: center;
-  margin-bottom: 1rem;
-}
-
-.venue-card-label {
-  font-size: 10px;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: var(--gold-dim);
-  margin-bottom: 0.75rem;
-}
-
-.venue-card-name {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.45rem;
-  font-weight: 500;
-  color: var(--heading);
-  margin-bottom: 0.35rem;
-}
-
-.venue-card-address {
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  color: var(--text-muted);
-  line-height: 1.7;
-  margin-bottom: 0.85rem;
-}
-
-.venue-card-times {
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--text-soft);
-  margin-bottom: 1.1rem;
-}
-
-.venue-card .btn {
-  max-width: 220px;
-  margin: 0 auto;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .card {
@@ -537,7 +506,7 @@ body, #root {
 
 .nav-switch {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 4px;
   width: 100%;
   margin: 0 auto 1.5rem;
@@ -558,8 +527,8 @@ body, #root {
 }
 
 .nav-item {
-  font-size: 8.5px;
-  letter-spacing: 0.14em;
+  font-size: 8px;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-muted);
   cursor: pointer;
@@ -602,6 +571,10 @@ body, #root {
   color: var(--heading);
   background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 2px 10px rgba(44, 36, 24, 0.08);
+}
+
+.card-title + .programme-section {
+  margin-top: 1.5rem;
 }
 
 .programme-section + .programme-section {
@@ -751,6 +724,103 @@ body, #root {
 .admin-gate {
   text-align: center;
 }
+
+.content-wide {
+  max-width: 960px;
+}
+
+.seating-view {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.seating-intro .card-sub {
+  margin-bottom: 1.25rem;
+}
+
+.seat-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.seat-table {
+  background: var(--surface);
+  border: 0.5px solid rgba(255, 255, 255, 0.65);
+  border-radius: 6px;
+  padding: 1.15rem 1.1rem 0.9rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.seat-table-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.15rem;
+}
+
+.seat-table-number {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.45rem;
+  color: var(--heading);
+  line-height: 1;
+}
+
+.seat-table-count {
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+}
+
+.seat-table-section {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0.45rem 0 0.7rem;
+}
+
+.seat-list {
+  list-style: none;
+  margin: 0.55rem 0 0;
+  padding: 0;
+}
+
+.seat-list li {
+  display: flex;
+  gap: 0.65rem;
+  align-items: baseline;
+  padding: 0.38rem 0;
+  border-top: 0.5px solid rgba(184, 168, 138, 0.22);
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--text);
+  line-height: 1.35;
+}
+
+.seat-index {
+  flex-shrink: 0;
+  width: 1.25rem;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--gold-dim);
+}
+
+.seat-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  padding: 0.5rem 0 0.25rem;
+}
+
+@media (min-width: 720px) {
+  .seat-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
 `;
 
 function parseCSVLine(line) {
@@ -794,7 +864,10 @@ function pickField(row, keys) {
 }
 
 function formatTableDisplay(tableNum) {
-  return tableNum ? `Table ${tableNum}` : "—";
+  const value = String(tableNum || "").trim();
+  if (!value) return "—";
+  if (/^\d+$/.test(value)) return `Table ${value}`;
+  return value;
 }
 
 function normalizeGuestRow(row) {
@@ -961,10 +1034,43 @@ function uniqueSections(guests) {
   return [...new Set(guests.map((g) => g.section).filter(Boolean))].length;
 }
 
+function groupGuestsByTable(guests) {
+  const groups = new Map();
+
+  for (const guest of guests) {
+    const display = getGuestDisplay(guest);
+    const key = String(display.tableNumber || display.table || "—");
+    if (!groups.has(key)) {
+      const order = Number(guest.table_order);
+      groups.set(key, {
+        key,
+        label: display.table || formatTableDisplay(key),
+        section: display.section || "",
+        order: Number.isFinite(order) ? order : groups.size,
+        guests: [],
+      });
+    }
+    const group = groups.get(key);
+    if (!group.section && display.section) group.section = display.section;
+    group.guests.push(display.name);
+  }
+
+  return [...groups.values()].sort((a, b) => {
+    if (Number.isFinite(a.order) && Number.isFinite(b.order) && a.order !== b.order) {
+      return a.order - b.order;
+    }
+    const left = Number(a.key);
+    const right = Number(b.key);
+    if (!Number.isNaN(left) && !Number.isNaN(right)) return left - right;
+    return a.label.localeCompare(b.label, undefined, { numeric: true });
+  });
+}
+
 const NAV_TABS = [
-  { id: "guest", long: "Find My Seat", short: "Find Seat" },
-  { id: "programme", long: "Programme Outline", short: "Programme" },
-  { id: "admin", long: "Couple's Portal", short: "Portal" },
+  { id: "guest", long: "Find Seat", short: "Seat" },
+  { id: "seating", long: "Tables", short: "Tables" },
+  { id: "programme", long: "Order", short: "Order" },
+  { id: "admin", long: "Portal", short: "Portal" },
 ];
 
 function NavLabel({ long, short }) {
@@ -991,10 +1097,10 @@ function PageBackground() {
       <div className="page-bg" aria-hidden="true">
         <img
           className="page-bg-image"
-          src="/images/couple-portrait.jpg"
+          src="/images/couple-portrait.jpg?v=kangwa-joseph"
           alt=""
-          width={819}
-          height={1024}
+          width={1024}
+          height={682}
           decoding="async"
           fetchPriority="high"
         />
@@ -1062,8 +1168,8 @@ function AdminView({ onSave, savedGuests, savedCoupleName, savedWeddingDate, adm
         <p className="card-sub">How guests will see your wedding</p>
 
         <div className="field-wrap">
-          <label className="field-label">Your names (e.g. Steven & Priscilla)</label>
-          <input className="field-input" value={coupleName} onChange={e => setCoupleName(e.target.value)} placeholder="Steven & Priscilla" />
+          <label className="field-label">Your names (e.g. Kangwa & Joseph)</label>
+          <input className="field-input" value={coupleName} onChange={e => setCoupleName(e.target.value)} placeholder="Kangwa & Joseph" />
         </div>
         <div className="field-wrap">
           <label className="field-label">Wedding date</label>
@@ -1284,7 +1390,7 @@ function GuestView({ guests, loading }) {
       {status === "idle" && (
         <>
           <p className="card-title">Find Your Seat</p>
-          <p className="card-sub">Start typing your name — matching guests will appear as you type</p>
+          <p className="card-sub">Type your name to understand where</p>
           <div className="field-wrap suggest-wrap">
             <label className="field-label" htmlFor="guest-name">Your full name</label>
             <input
@@ -1355,39 +1461,14 @@ function GuestView({ guests, loading }) {
   );
 }
 
-function VenueCard({ name, address, mapsUrl, arrivalTime, ceremonyTime }) {
-  if (!name || !address) return null;
-
-  return (
-    <div className="card venue-card fade-up-2">
-      <p className="venue-card-label">Today&apos;s Venue</p>
-      <p className="venue-card-name">{name}</p>
-      <p className="venue-card-address">{address}</p>
-      {(arrivalTime || ceremonyTime) && (
-        <p className="venue-card-times">
-          {arrivalTime && <>Arrive by {arrivalTime}</>}
-          {arrivalTime && ceremonyTime && " · "}
-          {ceremonyTime && <>Ceremony {ceremonyTime}</>}
-        </p>
-      )}
-      {mapsUrl && (
-        <a className="btn btn-primary" href={mapsUrl} target="_blank" rel="noopener noreferrer">
-          Get Directions
-        </a>
-      )}
-    </div>
-  );
-}
-
 function ProgrammeView() {
   return (
     <div className="card fade-up-2">
-      <p className="card-title">Programme Outline</p>
-      <p className="card-sub">Order of service for the white wedding ceremony</p>
+      <p className="card-title">Order of the Day</p>
 
       {PROGRAMME_SECTIONS.map((section) => (
-        <section key={section.title} className="programme-section">
-          <p className="programme-section-title">{section.title}</p>
+        <section key={section.title || "order"} className="programme-section">
+          {section.title && <p className="programme-section-title">{section.title}</p>}
           <ol className="programme-list">
             {section.items.map((item, index) => (
               <li key={`${section.title}-${index}`} className="programme-item">
@@ -1403,6 +1484,84 @@ function ProgrammeView() {
           </ol>
         </section>
       ))}
+    </div>
+  );
+}
+
+function SeatingView({ guests, loading }) {
+  const [query, setQuery] = useState("");
+  const tables = useMemo(() => groupGuestsByTable(guests), [guests]);
+  const needle = query.trim().toLowerCase();
+  const visibleTables = useMemo(() => {
+    if (!needle) return tables;
+    return tables.filter((table) => {
+      const haystack = [table.label, table.section, table.key, ...table.guests].join(" ").toLowerCase();
+      return haystack.includes(needle);
+    });
+  }, [tables, needle]);
+
+  if (loading) {
+    return (
+      <div className="card fade-up-2" style={{ textAlign: "center" }}>
+        <p className="card-title" style={{ fontSize: "1.25rem", marginBottom: "0.75rem" }}>Loading seating plan…</p>
+      </div>
+    );
+  }
+
+  if (guests.length === 0) {
+    return (
+      <div className="card fade-up-2" style={{ textAlign: "center" }}>
+        <p className="card-title" style={{ fontSize: "1.25rem", marginBottom: "0.75rem" }}>No tables yet</p>
+        <p style={{ color: "var(--text-muted)", fontSize: "12px", letterSpacing: "0.08em", lineHeight: 1.7 }}>
+          The guest list hasn&apos;t been published yet.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="seating-view fade-up-2">
+      <div className="card seating-intro">
+        <p className="card-title">Table Arrangement</p>
+        <p className="card-sub">{tables.length} tables · {guests.length} guests</p>
+        <div className="field-wrap" style={{ marginBottom: 0 }}>
+          <label className="field-label" htmlFor="table-search">Search a name or table</label>
+          <input
+            id="table-search"
+            className="field-input"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="e.g. Mongu or Karen"
+            autoComplete="off"
+          />
+        </div>
+      </div>
+
+      {visibleTables.length === 0 ? (
+        <div className="card">
+          <p className="seat-empty">No tables match that search.</p>
+        </div>
+      ) : (
+        <div className="seat-grid">
+          {visibleTables.map((table) => (
+            <article key={table.key} className="seat-table">
+              <div className="seat-table-head">
+                <p className="seat-table-number">{table.label}</p>
+                <p className="seat-table-count">{table.guests.length} seated</p>
+              </div>
+              {table.section && <p className="seat-table-section">{table.section}</p>}
+              <ol className="seat-list">
+                {table.guests.map((name, index) => (
+                  <li key={`${table.key}-${index}`}>
+                    <span className="seat-index">{index + 1}</span>
+                    <span>{name}</span>
+                  </li>
+                ))}
+              </ol>
+            </article>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -1494,11 +1653,6 @@ export default function App() {
 
   const displayCouple = coupleName || ENV_DEFAULTS.VITE_COUPLE_NAMES;
   const displayDate = weddingDate || ENV_DEFAULTS.VITE_WEDDING_DATE;
-  const venueName = ENV_DEFAULTS.VITE_VENUE_NAME;
-  const venueAddress = ENV_DEFAULTS.VITE_VENUE_ADDRESS;
-  const venueMapsUrl = ENV_DEFAULTS.VITE_VENUE_MAPS_URL;
-  const arrivalTime = ENV_DEFAULTS.VITE_ARRIVAL_TIME;
-  const ceremonyTime = ENV_DEFAULTS.VITE_CEREMONY_TIME;
 
   return (
     <>
@@ -1507,7 +1661,7 @@ export default function App() {
 
       <div className="page">
         <div className="photo-spacer" aria-hidden="true" />
-        <div className="content">
+        <div className={`content${view === "seating" ? " content-wide" : ""}`}>
           <header className="hero">
             <div className="ornament fade-up">
               <div className="ornament-line"><Diamond /><span style={{ letterSpacing: "0.3em" }}>{SITE_LABEL}</span><Diamond /></div>
@@ -1539,14 +1693,6 @@ export default function App() {
 
           {!loadError && (
           <>
-          <VenueCard
-            name={venueName}
-            address={venueAddress}
-            mapsUrl={venueMapsUrl}
-            arrivalTime={arrivalTime}
-            ceremonyTime={ceremonyTime}
-          />
-
           <div className="nav-wrap fade-up-3">
             <div className="nav-switch">
               {NAV_TABS.map(({ id, long, short }) => (
@@ -1564,6 +1710,8 @@ export default function App() {
           </div>
 
           {view === "guest" && <GuestView guests={guests} loading={loading} />}
+
+          {view === "seating" && <SeatingView guests={guests} loading={loading} />}
 
           {view === "programme" && <ProgrammeView />}
 

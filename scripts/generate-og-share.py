@@ -8,7 +8,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
-SRC = ROOT / "public" / "images" / "couple-bg.png"
+SRC = ROOT / "public" / "images" / "couple-portrait.jpg"
 OUT = ROOT / "public" / "images" / "og-share.png"
 TARGET_W, TARGET_H = 1200, 630
 BG_COLOR = (250, 247, 242)
@@ -74,7 +74,7 @@ def measure_text_block(draw: ImageDraw.ImageDraw) -> tuple[list[tuple[str, Image
         max_text_width,
     ):
         blocks.append((line, body_font, (107, 93, 74)))
-    blocks.append(("Edmond & Claudia · 08 August 2026", small_font, (138, 121, 98)))
+    blocks.append(("Kangwa & Joseph · 19 September 2026", small_font, (138, 121, 98)))
 
     measured: list[tuple[str, ImageFont.ImageFont, int, tuple[int, int, int]]] = []
     total_h = 0

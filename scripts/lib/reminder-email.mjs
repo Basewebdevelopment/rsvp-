@@ -8,6 +8,7 @@ function firstName(fullName) {
 
 export function buildReminderEmail({ guestName } = {}) {
   const couple = ENV_DEFAULTS.VITE_COUPLE_NAMES;
+  const coupleSpoken = couple.replace(/\s*&\s*/g, " and ");
   const date = ENV_DEFAULTS.VITE_WEDDING_DATE;
   const venue = ENV_DEFAULTS.VITE_VENUE_NAME;
   const address = ENV_DEFAULTS.VITE_VENUE_ADDRESS;
@@ -18,7 +19,7 @@ export function buildReminderEmail({ guestName } = {}) {
 
   const text = `Dear ${greeting},
 
-We're so excited to celebrate with you today, ${date}, as Steven and Priscilla begin their marriage.
+We're so excited to celebrate with you today, ${date}, as ${coupleSpoken} begin their marriage.
 
 Venue: ${venue}
 Address: ${address}
@@ -64,7 +65,7 @@ ${couple}`;
           <tr>
             <td style="font-size:16px;line-height:1.7;color:#3d3428;">
               <p style="margin:0 0 16px;">Dear ${greeting},</p>
-              <p style="margin:0 0 16px;">We're so excited to celebrate with you <strong>today</strong> as Steven and Priscilla begin their marriage.</p>
+              <p style="margin:0 0 16px;">We're so excited to celebrate with you <strong>today</strong> as ${coupleSpoken} begin their marriage.</p>
               <p style="margin:0 0 8px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#9a7340;">Venue</p>
               <p style="margin:0 0 16px;line-height:1.6;">
                 <strong>${venue}</strong><br />
